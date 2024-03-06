@@ -29,7 +29,7 @@ database.GetUsersCount = function() {
 
 database.GetLatestUser = function() {
   return new Promise((resolve, reject) => {
-    sql = 'select * from users limit 1'
+    sql = 'select * from users order by ROWID desc limit 1'
     db.get(sql, (err, row) => {
       if (err) {
         return console.error(err.message)

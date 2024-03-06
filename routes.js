@@ -13,35 +13,19 @@ router.get('/activities', async function(req, res){
     url = 'http://www.boredapi.com/api/activity'
   }
   else {
+    url = `http://www.boredapi.com/api/activity?`
     let user = await db.GetLatestUser()
     console.log('using latest user: ', user)
-    // for this exercise, i am using accessibility to mean 'accessibility requirements'
-    // that is, if a user has High accessibility requirements, their options are limited
-    // if they have low accessibility requirements, their options include high and medium
-    let maxAccessibility = 1, minAccessibility = 0
-    let maxPrice = 1, minPrice = 0
-    if (user.accessibility == 'High'){
-      maxAccessibility = 0.25
+    if (user.accessibility != null){
+      var maxAccessibility = helper.MaxAccessibility(user.accessibility)
+      var minAccessibility = 0
+      url = url + helper.BuildQueryString(url) + `minaccessibility=${minAccessibility}&maxaccessibility=${maxAccessibility}`
     }
-    else if (user.accessibility == 'Medium'){
-      maxAccessibility = 0.75
+    if (user.price != null){
+      var maxPrice = helper.MaxPrice(user.price)
+      var minPrice = 0
+      url = url + helper.BuildQueryString(url) + `minprice=${minPrice}&maxprice=${maxPrice}`
     }
-    else if (user.accessibility == 'Low'){
-      maxAccessibility = 1
-    }
-    // in the reverse way, price represents the highest price tolerance
-    // high will include all other prices, low will only include free, and free will be limited
-    if (user.price == 'High'){
-      maxPrice = 1
-    }
-    else if (user.price == 'Low'){
-      maxPrice = 0.5
-    }
-    else if (user.price == 'Free'){
-      maxPrice = 0
-    }
-    url = `http://www.boredapi.com/api/activity?minaccessibility=${minAccessibility}&maxaccessibility=${maxAccessibility}&minprice=${minPrice}&maxprice=${maxPrice}`
-
   }
   fetch(url)
     .then(response => {
